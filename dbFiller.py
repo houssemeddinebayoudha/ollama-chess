@@ -4,29 +4,29 @@ from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.vectorstores import Chroma
 
 # Load documents from a directory
-loader = PyPDFDirectoryLoader("./ChessLLM/pdfs")
+loader = PyPDFDirectoryLoader("./pdfs")
 
-print("dir loaded loader")
 
+# Loading the data into a document object
 documents = loader.load()
 
-print(len(documents))
+print("********** Data Loaded loaded **********")
 
-# # Create embeddingsclear
+
+
+# Loading the nomi-embed-text open embedding model
 embeddings = OllamaEmbeddings(model="nomic-embed-text", show_progress=True)
 
-# # Create Semantic Text Splitter
-# text_splitter = SemanticChunker(embeddings, breakpoint_threshold_type="interquartile")
-
+# Creating a recursive text splitter
 text_splitter = RecursiveCharacterTextSplitter(
     chunk_size=1500,
     chunk_overlap=300,
     add_start_index=True,
 )
 
-# # Split documents into chunks
+# Split documents into chunks
 texts = text_splitter.split_documents(documents)
-# # Create vector store
+# Create vector store
 vectorstore = Chroma.from_documents(
     documents=texts, 
     embedding= embeddings,
@@ -34,4 +34,4 @@ vectorstore = Chroma.from_documents(
     )
 
 
-print("vectorstore created")
+print("Vectorstore created")

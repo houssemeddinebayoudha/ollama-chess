@@ -23,7 +23,7 @@ retriever = db.as_retriever(
 local_llm = 'gemma2'
 
 llm = ChatOllama(model=local_llm,
-                 keep_alive="5m", 
+                 keep_alive=0, 
                  max_tokens=512,  
                  temperature=0)
 
@@ -67,4 +67,3 @@ if __name__ == "__main__":
         if user_question.lower() == 'quit':
             break
         answer = ask_question(user_question)
-        # print("\nFull answer received.\n")
