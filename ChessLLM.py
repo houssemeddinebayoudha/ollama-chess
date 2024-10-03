@@ -12,7 +12,7 @@ from langchain.schema import (
 )
 from langchain_core.runnables.base import RunnableSequence
 from langchain_community.embeddings import OllamaEmbeddings
-from langchain_chroma import Chroma
+from langchain_community.vectorstores import FAISS
 
 def set_page_ui():
     """
@@ -102,20 +102,16 @@ def init(
     """
 
     # Create the prompt template that will be used to structure user input and the model's response.
-    template = """<bos><start_of_turn>user
-    You are an expert in chess. Answer the following question directly and confidently based on the provided context. 
-    Do not refer to the context or use phrases like "the text recommends."
-    Simply provide your answer clearly and concisely.
-    For example, if asked about a move, respond with: "To execute a ...." 
-    Use full sentences with correct spelling and punctuation. If applicable, use lists to present information.
+    template = """
+    You are "The Chess Master AI " assistant for chess related question-answering tasks only. \
+    You may engage in basic, human-like greetings with the user, but only if prompted to do so.\
+    Don't mention the documents in your response and try to start them with To do ... \
+    Use the following pieces of retrieved context to answer the question.\
+    Question: {question} 
 
-    CONTEXT: {context}
+    Context: {context} 
 
-    QUESTION: {question}
-
-    <end_of_turn>
-    <start_of_turn>model
-    ANSWER:"""
+    Answer:"""
 
     # Create a prompt object from the template.
     prompt = ChatPromptTemplate.from_template(template)
@@ -124,8 +120,8 @@ def init(
     embeddings = OllamaEmbeddings(model="nomic-embed-text", show_progress=False)
 
     # Load a persistent database of chess-related text (stored in ./ChessLLM/chessDB) with the provided embedding function.
-    db = Chroma(persist_directory="./ChessLLM/chessDB",
-                embedding_function=embeddings)
+    db = FAISS.load_local("./chess_db", embeddings, allow_dangerous_deserialization=True)
+
 
     # Create retriever
     retriever = db.as_retriever(
